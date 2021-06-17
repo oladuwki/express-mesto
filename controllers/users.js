@@ -34,13 +34,14 @@ module.exports.createUser = (req, res) => {
       if (err.name === 'CastError') {
         res.status(404).send({ message: 'Некоректный _id.' });
       }
+      return res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
 
 module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
   const owner = req.user._id;
-  users.findByIdAndUpdate(owner, { name, about }, { runValidators: true }, { new: true })
+  users.findByIdAndUpdate(owner, { name, about }, { runValidators: true, new: true })
     .then((user) => {
       if (user) { return res.status(200).send({ data: user }); }
       return res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
@@ -52,13 +53,14 @@ module.exports.updateProfile = (req, res) => {
       if (err.name === 'CastError') {
         res.status(404).send({ message: 'Некоректный _id.' });
       }
+      return res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
 
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const owner = req.user._id;
-  users.findByIdAndUpdate(owner, { avatar }, { runValidators: true }, { new: true })
+  users.findByIdAndUpdate(owner, { avatar }, { runValidators: true, new: true })
     .then((user) => {
       if (user) { return res.status(200).send({ data: user }); }
       return res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
@@ -70,5 +72,6 @@ module.exports.updateAvatar = (req, res) => {
       if (err.name === 'CastError') {
         res.status(404).send({ message: 'Некоректный _id.' });
       }
+      return res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
