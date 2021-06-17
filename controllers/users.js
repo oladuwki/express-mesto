@@ -1,4 +1,3 @@
-const validator = require('validator');
 const users = require('../models/user');
 
 module.exports.getUsers = (req, res) => {
@@ -29,32 +28,47 @@ module.exports.createUser = (req, res) => {
   users.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      validator(res, err, 'Переданы некорректные данные при создании пользователя.');
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.  Пользователь по указанному _id не найден.' });
+      }
+      if (err.name === 'CastError') {
+        res.status(404).send({ message: 'Некоректный _id.' });
+      }
     });
 };
 
 module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
   const owner = req.user._id;
-  users.findByIdAndUpdate(owner, { name, about }, { runValidators: true })
+  users.findByIdAndUpdate(owner, { name, about }, { runValidators: true }, { new: true })
     .then((user) => {
       if (user) { return res.status(200).send({ data: user }); }
       return res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
     })
     .catch((err) => {
-      validator(res, err, 'Переданы некорректные данные при обновлении профиля.');
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.  Пользователь по указанному _id не найден.' });
+      }
+      if (err.name === 'CastError') {
+        res.status(404).send({ message: 'Некоректный _id.' });
+      }
     });
 };
 
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const owner = req.user._id;
-  users.findByIdAndUpdate(owner, { avatar }, { runValidators: true })
+  users.findByIdAndUpdate(owner, { avatar }, { runValidators: true }, { new: true })
     .then((user) => {
       if (user) { return res.status(200).send({ data: user }); }
       return res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
     })
     .catch((err) => {
-      validator(res, err, 'Переданы некорректные данные при обновлении аватара.');
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.  Пользователь по указанному _id не найден.' });
+      }
+      if (err.name === 'CastError') {
+        res.status(404).send({ message: 'Некоректный _id.' });
+      }
     });
 };

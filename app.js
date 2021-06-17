@@ -28,5 +28,8 @@ app.use((req, res, next) => {
 
 app.use(routesUser);
 app.use(routesCards);
+app.use((req, res) => {
+  res.status(404).send({ message: `${req}` });
+});
 
 app.listen(PORT);
