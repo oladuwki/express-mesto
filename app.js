@@ -25,7 +25,6 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 app.use(cookieParser());
 app.use(router);
-router.use('/', errorRoutes);
 app.use(errors());
 app.use(express.static(path.join(__dirname, 'public')));
 

@@ -20,8 +20,9 @@ module.exports.getUsers = (req, res, next) => {
       next(err);
     });
 };
+
 module.exports.getUser = (req, res, next) => {
-  const { userId } = req.user;
+  const { userId } = req.user._id;
   return users.findById(userId)
     .then((user) => {
       if (user) {
@@ -77,41 +78,35 @@ module.exports.createUser = (req, res, next) => {
   });
 };
 
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   const owner = req.user._id;
   users.findByIdAndUpdate(owner, { name, about }, { runValidators: true, new: true })
-    .then((user) => {
-      if (user) { return res.status(200).send({ data: user }); }
-      return res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
-    })
+    .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
+      if (err.message === 'NotValidId') {
+        next(new NotFoundError('Нет пользователя с таким id'));
+      }
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.  Пользователь по указанному _id не найден.' });
+        next(new BadRequestError('Переданы некорректный данные'));
       }
-      if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Некоректный _id.' });
-      }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      next(err);
     });
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const owner = req.user._id;
   users.findByIdAndUpdate(owner, { avatar }, { runValidators: true, new: true })
-    .then((user) => {
-      if (user) { return res.status(200).send({ data: user }); }
-      return res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
-    })
+    .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
+      if (err.message === 'NotValidId') {
+        next(new NotFoundError('Нет пользователя с таким id'));
+      }
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.  Пользователь по указанному _id не найден.' });
+        next(new BadRequestError('Переданы некорректный данные'));
       }
-      if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Некоректный _id.' });
-      }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      next(err);
     });
 };
 

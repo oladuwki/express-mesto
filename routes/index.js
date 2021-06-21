@@ -29,7 +29,9 @@ const validateSignin = celebrate({
 router.post('/signup', validateUserSignup, createUser);
 router.post('/signin', validateSignin, login);
 
-router.use('/users', auth, userRouter, errorRoutes);
+router.use('/users', auth, userRouter);
 router.use('/cards', auth, cardsRouter);
+
+router.use('/', errorRoutes);
 
 module.exports = router;
