@@ -56,7 +56,7 @@ module.exports.deleteCard = (req, res) => {
   const owner = req.user._id;
   cards.findOneAndDelete({ _id: req.params.cardId, owner })
     .then((card) => {
-      if (card) {
+      if (!card.owner.equals(req.user._id)) {
         res.send({ data: card });
       }
     })

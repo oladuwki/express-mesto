@@ -23,13 +23,12 @@ const validateAvatar = celebrate({
 });
 
 const {
-  getUsers, getUser, createUser, updateProfile, updateAvatar,
+  getUsers, getUser, updateProfile, updateAvatar,
 } = require('../controllers/users');
 
 routerUsers.get('/users', getUsers);
 routerUsers.get('/users/:userId', validateId, getUser);
-routerUsers.post('/users', createUser);
-routerUsers.patch('/users/me', validateUpdateProfile, updateProfile);
+routerUsers.patch('/users/me', validateUpdateProfile, updateProfile, getUser);
 routerUsers.patch('/users/me/avatar', validateAvatar, updateAvatar);
 
 module.exports = routerUsers;

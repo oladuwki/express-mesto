@@ -3,6 +3,7 @@ const { celebrate, Joi } = require('celebrate');
 const userRouter = require('./users');
 const cardsRouter = require('./cards');
 const auth = require('../middlewares/auth');
+const errorRoutes = require('./error');
 const { createUser, login } = require('../controllers/users');
 
 const validateUserSignup = celebrate({
@@ -28,5 +29,7 @@ const validateSignin = celebrate({
 router.post('/signup', validateUserSignup, createUser);
 router.post('/signin', validateSignin, login);
 
-router.use('/users', auth, userRouter);
+router.use('/users', auth, userRouter, errorRoutes);
 router.use('/cards', auth, cardsRouter);
+
+module.exports = router;

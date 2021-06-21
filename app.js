@@ -23,13 +23,11 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
-app.use(routesUser);
-app.use(routesCards);
+app.use(cookieParser());
+app.use(router);
+router.use('/', errorRoutes);
+app.use(errors());
 app.use(express.static(path.join(__dirname, 'public')));
-
-app.use((req, res) => {
-  res.status(404).send({ message: 'Несуществующий запрос.' });
-});
 
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;

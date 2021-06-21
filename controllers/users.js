@@ -5,15 +5,23 @@ const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConflictError');
 const BadRequestError = require('../errors/BadRequestError');
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   users.find({})
     .then((items) => {
       res.status(200).send({ data: items });
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.message === 'NotValidId') {
+        next(new NotFoundError('Нет пользователя с таким id'));
+      }
+      if (err.kind === 'ObjectId') {
+        next(new BadRequestError('Переданы некорректный данные'));
+      }
+      next(err);
+    });
 };
-module.exports.getUser = (req, res) => {
-  const { userId } = req.params;
+module.exports.getUser = (req, res, next) => {
+  const { userId } = req.user;
   return users.findById(userId)
     .then((user) => {
       if (user) {
@@ -23,8 +31,14 @@ module.exports.getUser = (req, res) => {
       }
       return res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
     })
-    .catch(() => {
-      res.status(500).send({ message: 'Произошла ошибка' });
+    .catch((err) => {
+      if (err.message === 'NotValidId') {
+        next(new NotFoundError('Нет пользователя с таким id'));
+      }
+      if (err.kind === 'ObjectId') {
+        next(new BadRequestError('Переданы некорректный данные'));
+      }
+      next(err);
     });
 };
 
