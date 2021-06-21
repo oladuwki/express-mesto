@@ -30,10 +30,7 @@ module.exports.likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .then((card) => {
-      if (card === null) return res.status(ERROR_CODE_400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка' });
-      return res.send({ data: card });
-    })
+    .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.message === 'NotValidId') {
         next(new NotFoundError('Карточка с указанным _id не найдена'));
@@ -68,12 +65,14 @@ module.exports.dislikeCard = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  const owner = req.user._id;
-  cards.findOneAndDelete({ _id: req.params.cardId, owner })
+  cards.findById(req.params.id)
+    .orFail(new Error('NotValidId'))
     .then((card) => {
-      if (!card.owner.equals(req.user._id)) {
-        res.send({ data: card });
+      if (req.user._id.toString() === card.owner.toString()) {
+        card.remove();
+        res.status(200).send({ message: 'Карточка удалена' });
       }
+      throw new ForbiddenError('Нельзя удалять чужую карточку');
     })
     .catch((err) => {
       if (err.message === 'NotValidId') {

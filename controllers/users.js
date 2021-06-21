@@ -22,15 +22,13 @@ module.exports.getUsers = (req, res, next) => {
 };
 
 module.exports.getUser = (req, res, next) => {
-  const { userId } = req.user._id;
-  return users.findById(userId)
+  const { _id } = req.user;
+  return users.findOne({ _id })
     .then((user) => {
-      if (user) {
-        return res.status(200).send({
-          name: user.name, about: user.about, avatar: user.avatar, _id: user._id,
-        });
+      if (!user) {
+        throw new NotFoundError('Нет пользователя с таким id');
       }
-      return res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
+      res.status(200).send(user);
     })
     .catch((err) => {
       if (err.message === 'NotValidId') {
